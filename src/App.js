@@ -13,6 +13,7 @@ const region = {'Russia':'ru', 'Korea':'kr', 'Brazil':'br1',
 
 const MyLoader = () => (
     <ContentLoader
+        className={"loader"}
         height={200}
         width={400}
         speed={2}
@@ -103,7 +104,7 @@ class Form extends Component {
 
   render() {
     return (
-      <div>
+      <div className="body">
         <form className="form" onSubmit={this.handleSubmit}>
           <input placeholder="Summoner Name" type="text" name="summonerName" onChange={(event) => this.handleChange(event)}/>
           <select value={this.state.region} name="region" onChange={(event) => this.handleChange(event)}>
@@ -114,7 +115,7 @@ class Form extends Component {
           <button type="submit">Submit</button>
         </form>
 
-        {this.state.loading ? <MyLoader/>:
+        {this.state.loading ? <div><MyLoader/></div>:
           Object.keys(this.state.accInfo).length === 0 ? null :
           <div>
             <Info vers={this.state.vers} info={this.state.accInfo}/>
