@@ -2,6 +2,18 @@ import React, { Component } from 'react';
 import Header from './header';
 import axios from 'axios';
 import ContentLoader from 'react-content-loader';
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButtonDropdown,
+  InputGroupDropdown,
+  Input,
+  Button,
+  Dropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem
+ } from 'reactstrap';
 import './App.css';
 
 const key = "RGAPI-a7e24e75-6b2d-4e4a-8f58-fa5ffb31de07";
@@ -50,6 +62,8 @@ class Form extends Component {
       matches: [],
       matchData:{},
       vers: '8.4.1',
+      dropdownOpen: false,
+      splitButtonOpen: false
     }
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -105,15 +119,20 @@ class Form extends Component {
   render() {
     return (
       <div className="body">
-        <form className="form" onSubmit={this.handleSubmit}>
-          <input placeholder="Summoner Name" type="text" name="summonerName" onChange={(event) => this.handleChange(event)}/>
-          <select value={this.state.region} name="region" onChange={(event) => this.handleChange(event)}>
-              {Object.keys(region).map((server)=>
-                <option key={server} value={server}>{server}</option>
-              )}
-          </select>
-          <button type="submit">Submit</button>
-        </form>
+
+        <div className="form">
+          <form onSubmit={this.handleSubmit}>
+            <InputGroup>
+              <Input placeholder="Summoner Name" type="text" name="summonerName" onChange={(event) => this.handleChange(event)}/>
+              <select value={this.state.region} name="region" onChange={(event) => this.handleChange(event)}>
+                  {Object.keys(region).map((server)=>
+                    <option key={server} value={server}>{server}</option>
+                  )}
+              </select>
+              <Button type="submit">Submit</Button>
+            </InputGroup>
+          </form>
+        </div>
 
         {this.state.loading ? <div><MyLoader/></div>:
           Object.keys(this.state.accInfo).length === 0 ? null :
