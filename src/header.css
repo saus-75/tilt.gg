@@ -1,0 +1,12 @@
+.header.jumbotron {
+    background-color: #A09DB9; 
+    border-radius: 0px;
+    margin: auto;
+}
+
+.title {
+    color: #FFFFFF;
+    text-align: center;
+    font-family: 'Francois One', sans-serif;
+    font-size: 65px;
+}
