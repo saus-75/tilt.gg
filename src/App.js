@@ -9,14 +9,10 @@ import {
   InputGroupDropdown,
   Input,
   Button,
-  Dropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem
  } from 'reactstrap';
 import './App.css';
 
-const key = "RGAPI-a7e24e75-6b2d-4e4a-8f58-fa5ffb31de07";
+const key = "RGAPI-fca8c19e-16bd-4d58-8a62-3b557504a2c9";
 const region = {'Russia':'ru', 'Korea':'kr', 'Brazil':'br1', 
                 'Oceania':'oc1', 'Japan':'jp1', 'North America':'na1', 
                 'Europe Nordic & East':'eun1', 'Europe West':'euw1', 
@@ -62,8 +58,6 @@ class Form extends Component {
       matches: [],
       matchData:{},
       vers: '8.4.1',
-      dropdownOpen: false,
-      splitButtonOpen: false
     }
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -123,13 +117,17 @@ class Form extends Component {
         <div className="form">
           <form onSubmit={this.handleSubmit}>
             <InputGroup>
+              <InputGroupAddon addonType="prepend">
+                <select value={this.state.region} name="region" onChange={(event) => this.handleChange(event)}>
+                    {Object.keys(region).map((server)=>
+                      <option key={server} value={server}>{server}</option>
+                    )}
+                </select>
+              </InputGroupAddon>
               <Input placeholder="Summoner Name" type="text" name="summonerName" onChange={(event) => this.handleChange(event)}/>
-              <select value={this.state.region} name="region" onChange={(event) => this.handleChange(event)}>
-                  {Object.keys(region).map((server)=>
-                    <option key={server} value={server}>{server}</option>
-                  )}
-              </select>
-              <Button type="submit">Submit</Button>
+              <InputGroupAddon addonType="append">
+                <Button type="submit">Submit</Button>
+              </InputGroupAddon>
             </InputGroup>
           </form>
         </div>
