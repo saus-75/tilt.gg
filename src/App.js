@@ -1,41 +1,18 @@
 import React, { Component } from 'react';
 import Header from './header';
+import {KEY} from './key';
+import {region} from './const'
+import './App.css';
 import axios from 'axios';
 import ContentLoader from 'react-content-loader';
 import {
   InputGroup,
   InputGroupAddon,
-  InputGroupButtonDropdown,
-  InputGroupDropdown,
   Input,
   Button,
  } from 'reactstrap';
-import './App.css';
 
-const key = "RGAPI-fca8c19e-16bd-4d58-8a62-3b557504a2c9";
-const region = {'Russia':'ru', 'Korea':'kr', 'Brazil':'br1', 
-                'Oceania':'oc1', 'Japan':'jp1', 'North America':'na1', 
-                'Europe Nordic & East':'eun1', 'Europe West':'euw1', 
-                'Turkey':'tr1', 'Latin America North':'la1', 
-                'Latin America South':'la2'};
-
-const MyLoader = () => (
-    <ContentLoader
-        className={"loader"}
-        height={200}
-        width={400}
-        speed={2}
-        primaryColor={"#FFFFFF"}
-        secondaryColor={"#6D6986"}
-    >
-        <circle cx="185" cy="80" r="41" /> 
-        <rect x="233" y="80" rx="5" ry="5" width="85" height="10" /> 
-        <rect x="52" y="80" rx="5" ry="5" width="85" height="10" /> 
-        <rect x="92" y="130" rx="5" ry="5" width="200" height="10" /> 
-        <rect x="45" y="150" rx="5" ry="5" width="300" height="10" /> 
-        <rect x="114" y="170" rx="5" ry="5" width="150" height="10" />
-    </ContentLoader>
-);
+var championData = require('./champions');
 
 class App extends Component {
   render() {
@@ -73,11 +50,13 @@ class Form extends Component {
     event.preventDefault();
     const name = this.state.summonerName;
     const server = this.state.region;
+    //Validation check
     if (name === null || name === ''){
       alert(`Name field is empty!`);
     } else {
+      //Finds summoner id & acc id by name
       this.setState({loading: true});
-      axios.get(`https://${region[server]}.api.riotgames.com/lol/summoner/v3/summoners/by-name/${name}?api_key=${key}`, {})
+      axios.get(`https://${region[server]}.api.riotgames.com/lol/summoner/v3/summoners/by-name/${name}?api_key=${KEY}`, {})
       .then(
         (response) => {
           this.setState({
@@ -85,7 +64,8 @@ class Form extends Component {
             accInfo: response.data
           });
           const acc = this.state.accInfo;
-          return axios.get(`https://${region[server]}.api.riotgames.com/lol/match/v3/matchlists/by-account/${acc['accountId']}/recent?api_key=${key}`, {});
+          //returns last 20 match
+          return axios.get(`https://${region[server]}.api.riotgames.com/lol/match/v3/matchlists/by-account/${acc['accountId']}/recent?api_key=${KEY}`, {});
         }
       ).then(
         (response) => {
@@ -94,7 +74,8 @@ class Form extends Component {
           });
           var promises = [];
           this.state.matches.forEach((val) => {
-            let url = `https://${region[server]}.api.riotgames.com/lol/match/v3/matches/${val.gameId}?api_key=${key}`;
+            //goes another layer in by retrieving detail of each match
+            let url = `https://${region[server]}.api.riotgames.com/lol/match/v3/matches/${val.gameId}?api_key=${KEY}`;
             promises.push(axios.get(url));
           });
           return axios.all(promises, {});
@@ -150,19 +131,9 @@ class Info extends Component{
     const info = this.props.info;
     return (
       <div>
-        {
-          Object.keys(info).length === 0 ? null : 
-            Object.keys(info).map((val) => 
-              val === "profileIconId" ? 
-                <img src={'http://ddragon.leagueoflegends.com/cdn/' + vers +'/img/profileicon/' + info[val] + '.png'}
-                alt={info[val]} key={val} height='50px' width='50px'
-                /> :
-              val === "revisionDate" ? null : 
-                <div key={val}>
-                  {val}: {info[val]}
-                </div>
-            )
-        }
+        {info.name} : 
+        <img src={'http://ddragon.leagueoflegends.com/cdn/' + vers +'/img/profileicon/' + info.profileIconId + '.png'}
+        alt={info.profileIconId} key={info.profileIconId} height='50px' width='50px'/>
       </div>
     );
   }
@@ -171,9 +142,10 @@ class Info extends Component{
 class Match extends Component{
   render() {
     const sumId = this.props.sumId;
-    // const vers = this.props.vers;
+    const vers = this.props.vers;
     const matches = this.props.matches;
     const matchData = this.props.matchData;
+    const champions = championData.data;
     let extracts = [];
     let matchIds = [];
     matchData.forEach((val) => extracts.push(val.data));
@@ -186,7 +158,11 @@ class Match extends Component{
         {
           Object.keys(matches).map((match) =>
             <div key={match}> 
-              {matches[match].gameId} : {matches[match].lane} : {matches[match].champion} : {wins[match].mode} : {wins[match].wins} 
+              {matches[match].gameId} : {matches[match].lane} : 
+              {champions[matches[match].champion].name} : 
+              <img src={'http://ddragon.leagueoflegends.com/cdn/' + vers + '/img/champion/' + champions[matches[match].champion].image.full}
+              alt={matches[match].champion} key={matches[match].champion} height='50px' width='50px'/> 
+              : {wins[match].mode} : {wins[match].wins !== 'Fail' ? 'Victory' : 'Defeat'}
             </div>
           )
         }
@@ -194,7 +170,7 @@ class Match extends Component{
     );
   }
 }
-
+ 
 function matchExtraction(sumId, matchIds, extracts){
     let partId = [];
     let teamId = [];
@@ -234,4 +210,23 @@ function matchExtraction(sumId, matchIds, extracts){
 
     return wins;
 }
+
+const MyLoader = () => (
+    <ContentLoader
+        className={"loader"}
+        height={200}
+        width={400}
+        speed={2}
+        primaryColor={"#FFFFFF"}
+        secondaryColor={"#6D6986"}
+    >
+        <circle cx="185" cy="80" r="41" /> 
+        <rect x="233" y="80" rx="5" ry="5" width="85" height="10" /> 
+        <rect x="52" y="80" rx="5" ry="5" width="85" height="10" /> 
+        <rect x="92" y="130" rx="5" ry="5" width="200" height="10" /> 
+        <rect x="45" y="150" rx="5" ry="5" width="300" height="10" /> 
+        <rect x="114" y="170" rx="5" ry="5" width="150" height="10" />
+    </ContentLoader>
+);
+
 export default App;
